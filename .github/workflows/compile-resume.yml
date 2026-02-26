@@ -1,0 +1,33 @@
+name: Compile LaTeX Resume to PDF
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'resume.tex'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile resume.tex to PDF
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: resume.tex
+
+      - name: Commit and push compiled PDF
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add resume.pdf
+          git diff --cached --quiet || git commit -m "chore: compile resume.tex to resume.pdf [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
